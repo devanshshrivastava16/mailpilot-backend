@@ -53,4 +53,6 @@ public class EmailCampaignController {
             @PathVariable Long id) {
         return ResponseEntity.ok(emailService.getCampaignDetail(getUserId(userDetails), id));
     }
+
+
 }

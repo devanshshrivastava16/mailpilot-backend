@@ -241,4 +241,5 @@ public class EmailService {
                 .replace("{{company}}", company != null ? company : "")
                 .replace("{{email}}", email != null ? email : "");
     }
+
 }
