@@ -203,37 +203,36 @@ public class EmailService {
     }
 
     private void sendSingleEmail(String from, String password, String to, String subject,
-                                 String htmlBody, byte[] resumeBytes, String resumeFileName, String resumeContentType) throws Exception {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
-        mailSender.setUsername(from);
-        mailSender.setPassword(password);
-        mailSender.setProtocol("smtp");
-        mailSender.setDefaultEncoding("UTF-8");
+                             String htmlBody, byte[] resumeBytes, String resumeFileName, String resumeContentType) throws Exception {
+    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+    mailSender.setHost("smtp.gmail.com");
+    mailSender.setPort(465);                    // ← changed from 587
+    mailSender.setProtocol("smtps");            // ← changed from smtp
+    mailSender.setUsername(from);
+    mailSender.setPassword(password);
+    mailSender.setDefaultEncoding("UTF-8");
 
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-        props.put("mail.smtp.connectiontimeout", "10000");
-        props.put("mail.smtp.timeout", "10000");
-        props.put("mail.smtp.writetimeout", "10000");
+    Properties props = mailSender.getJavaMailProperties();
+    props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.ssl.enable", "true");  // ← changed from starttls
+    props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+    props.put("mail.smtp.connectiontimeout", "15000");
+    props.put("mail.smtp.timeout", "15000");
+    props.put("mail.smtp.writetimeout", "15000");
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-        helper.setFrom(from);
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(htmlBody, true);
+    MimeMessage message = mailSender.createMimeMessage();
+    MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+    helper.setFrom(from);
+    helper.setTo(to);
+    helper.setSubject(subject);
+    helper.setText(htmlBody, true);
 
-        if (resumeBytes != null && resumeBytes.length > 0) {
-            helper.addAttachment(resumeFileName, new ByteArrayDataSource(resumeBytes, resumeContentType));
-            log.info("Attached: {} ({} bytes) to {}", resumeFileName, resumeBytes.length, to);
-        }
-
-        mailSender.send(message);
+    if (resumeBytes != null && resumeBytes.length > 0) {
+        helper.addAttachment(resumeFileName, new ByteArrayDataSource(resumeBytes, resumeContentType));
     }
+
+    mailSender.send(message);
+}
 
     private String replacePlaceholders(String template, String name, String company, String email) {
         return template
